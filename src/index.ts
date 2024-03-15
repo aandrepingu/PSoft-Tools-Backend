@@ -1,8 +1,16 @@
 // src/index.js
 import express, { Express, RequestHandler } from "express";
-
 //import fs from "fs";
 //import { appendFile } from "node:fs";
+/*
+const connection = mysql.createConnection({
+	host     : 'localhost',
+	user     : 'root',
+	password : '',
+	database : 'nodelogin'
+});
+*/
+
 var fs = require("fs");
 var cors = require("cors");
 var bodyParser = require("body-parser");
@@ -90,6 +98,44 @@ app.get("/test", (request, response) => {
 
   var peopleJSON = JSON.stringify(people);
   response.send(peopleJSON);
+});
+
+//Simple Get request for routing to Homepage
+//Implement Later
+app.get('/home', (req, res) => {
+  res.sendFile(__dirname + '/static/home.html');
+});
+
+//Simple Get request for routing to Login page
+//Implement Later
+app.get('/login', (req, res) => {
+  res.sendFile(__dirname + '/static/login.html');
+});
+
+//Simple Get request for routing to dafny Page
+//Implement Later
+app.get('/dafny', (req, res) => {
+  res.sendFile(__dirname + '/static/dafny.html');
+});
+
+//Simple Login Post Request
+app.post('/login', (req, res) => {
+  // Insert Login Code Here
+  let username = req.body.username;
+  let password = req.body.password;
+
+  //Add checkign to make sure valid login in database
+  res.send(`Username: ${username} Password: ${password}`);
+});
+
+//Simple Signup Post Request
+app.post('/signup', (req, res) => {
+  // Insert Login Code Here
+  let username = req.body.username;
+  let password = req.body.password;
+
+  //Add username and password to database
+  res.send(`Username: ${username} Password: ${password}`);
 });
 
 app.listen(port, () => {
