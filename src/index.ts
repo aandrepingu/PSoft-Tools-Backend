@@ -29,9 +29,21 @@ app.use(bodyParser.raw({inflate:true, type: 'text/plain'}));
 
 app.post("/*", (req, res) => {
   //req.body; // JavaScript object containing the parse JSON
-  //console.log((req.body).toString())
+  console.log((req.body).toString())
   //Get string data
-  var peopleTxt = (req.body).toString();
+  var peopleTxt = (req.body);
+
+  //Testing What goes into file
+  /*
+  fs.appendFile(
+    __dirname + "/Dafny-Files" + "/testing.dfy",
+    peopleTxt,
+    function (err: any) {
+      if (err) throw err;
+      console.log("Create!");
+    }
+  );
+  */
 
   //Make tmp file
   fs.appendFileSync(
@@ -42,6 +54,8 @@ app.post("/*", (req, res) => {
       console.log("Create!");
     }
   );
+
+  
 
   //Run Dafny and store output on file
 
@@ -69,6 +83,8 @@ app.post("/*", (req, res) => {
 
   //Return Dafny Output
   //res.send(peopleJSON);
+  
+
   console.log(data.toString());
   res.send(data);
 });
@@ -78,6 +94,65 @@ app.get("/", (req, res) => {
   let responseText = JSON.stringify("Hello World!<br>");
   res.send(responseText);
 });
+
+
+//Adding post request to test Hoar Tripples with counter Example
+//Input string form variable, precondition, modifications to variable, postcondition
+//Confirm Precondition
+//Run code
+//Confirm Postcondition
+app.post("/HoarTrippleCounterExample", (req, res) => {
+  //Get string data as array of 4 strings
+  var peopleTxt = (req.body);
+
+  //PeopleTxt[0] = Variable = ?;
+  //PeopleTxt[1] = Precondition --> Change to Bool tmp = Precondition{Variable}
+
+  //If tmp == false return false
+
+  //Run PeopleTxt[2] with replacing in variable
+  //Confirm PeopleTxt[3] Postcondition --> Change to Bool tmp = Postcondition{ChangedVariable}
+  //If tmp == false return false
+  //Return True to frontend otherwise
+  
+
+
+  //Make tmp file
+  fs.appendFileSync(
+    __dirname + "/Dafny-Files" + "/java.java",
+    peopleTxt,
+    function (err: any) {
+      if (err) throw err;
+      console.log("Create!");
+    }
+  );
+
+
+  //Run Java and store output on file
+  //Need to parse only code (line 3)
+  //Need to read output of run java code instead --> To change
+  const data = fs.readFileSync(__dirname + "/Dafny-Files" + "/java.java", {
+    encoding: "utf8",
+    flag: "r",
+  });
+
+  //Delete file
+  fs.unlink(__dirname + "/Dafny-Files" + "/java.java", function (err: any) {
+    if (err && err.code == "ENOENT") {
+      // file doens't exist
+      console.info("File doesn't exist, won't remove it.");
+    } else if (err) {
+      // other errors, e.g. maybe we don't have enough permission
+      console.error("Error occurred while trying to remove file");
+    } else {
+      console.info(`removed`);
+    }
+  });
+
+  //console.log(data.toString());
+  res.send("False");
+});
+
 
 app.get("/test", (request, response) => {
   response.contentType("application/json");
