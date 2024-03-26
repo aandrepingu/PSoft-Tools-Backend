@@ -1,5 +1,5 @@
 // src/index.js
-import express, { Express, RequestHandler } from "express";
+import express, { Express, RequestHandler, response } from "express";
 import runDafny from "./dafnyRun";
 //import fs from "fs";
 //import { appendFile } from "node:fs";
@@ -27,7 +27,7 @@ app.use(cors(corsOptions));
 app.use(bodyParser.raw({ inflate: true, type: "text/plain" }));
 //app.use(bodyParser.json());
 
-app.post("/*", (req, res) => {
+app.post("/dafny", (req, res) => {
   /* We get the dafny code that was written in our code editor, verify it with dafny
    * by calling runDafny, then send whatever dafny outputs (stored in dafnyOutput.txt)
    * back to the front end to be displayed to the user.
@@ -105,6 +105,22 @@ app.get("/test", (request, response) => {
   response.send(peopleJSON);
 });
 
+app.post("/Hoars_Tripple", (req, res) => {
+  /* We get the dafny code that was written in our code editor, verify it with dafny
+   * by calling runDafny, then send whatever dafny outputs (stored in dafnyOutput.txt)
+   * back to the front end to be displayed to the user.
+   */
+  //req.body; // JavaScript object containing the parse JSON
+  console.log("Hello");
+  //req.body; // JavaScript object containing the parse JSON
+  //Get string data
+  var peopleTxt = JSON.stringify(req.body);
+  //peopleTxt = peopleTxt.slice(1, peopleTxt.length - 1);
+  console.log(peopleTxt);
+  res.send(peopleTxt);
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
