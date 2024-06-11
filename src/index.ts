@@ -1,5 +1,5 @@
 // src/index.js
-import express, { Express, RequestHandler } from "express";
+import express, { Express, RequestHandler, response } from "express";
 import { verifyDafny, runDafny } from "./runDafny";
 import { writeFileSync } from "fs";
 import {exec} from "child_process";
@@ -46,6 +46,13 @@ app.post("/hoare", (request, response) => {
   });
 });
 
+app.post("/forward-reasoning",(request, response) => {
+
+    const code:string = request.body.toString();
+    verifyDafny(code).then((result) => {
+      response.send(result);
+    })
+});
 
 // app.get("/", (req, res) => {
 //   //res.send("Hello World!");
