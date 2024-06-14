@@ -4,6 +4,7 @@ import { verifyDafny, runDafny } from "./runDafny";
 import { writeFileSync } from "fs";
 import {exec} from "child_process";
 import { Console } from "console";
+import ForwardReasoningParser from "./ForwardReasoning/ForwardReasoningParser";
 var cors = require("cors");
 var bodyParser = require("body-parser");
 
@@ -49,7 +50,7 @@ app.post("/hoare", (request, response) => {
 app.post("/forward-reasoning",(request, response) => {
 
     const code:string = request.body.toString();
-    verifyDafny(code).then((result) => {
+    ForwardReasoningParser(code).then((result) => {
       response.send(result);
     })
 });
