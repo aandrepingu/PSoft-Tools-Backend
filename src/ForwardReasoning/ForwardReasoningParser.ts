@@ -1,16 +1,15 @@
 
 export default function ForwardReasoningParser( initial : string) : Promise<string>{
 
-    console.log(initial);
-    //Gets the precondition 
+
 
 
     return new Promise<string>((resolve, reject) => {
         var conditions = [];
-        
+        var lines = initial.split(/\r?\n/);
         var precondition = initial.split(/{([^}]*)}/g).filter(Boolean)[0];
         conditions.push("{"+precondition+"}\n");
-        var lines = initial.split(/\r?\n/);
+
         lines.shift();
         
         console.log(lines);
