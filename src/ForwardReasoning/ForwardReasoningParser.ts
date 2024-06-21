@@ -1,89 +1,124 @@
-import exp from "constants";
-import { stringify } from "querystring";
+type Condition = string;
+type Statement = string;
+
+class ForwardReasoning {
+    conditions: Condition;
+    statements: Statement[];
+
+    constructor(conditions: Condition, statements: Statement[]) {
+        this.conditions = conditions;
+        this.statements = statements;
+    }
+
+
+    updateConditions(statement: Statement): Condition {
+        const parsedConditions = this.parseConditions(this.conditions);
+        const [variable, operation] = this.parseStatement(statement);
+
+        const updatedConditions = parsedConditions.map(cond => {
+            return this.updateConditionWithStatement(cond, variable, operation);
+        });
+
+        this.conditions = `{ ${updatedConditions.join(' && ')} }`;
+        return this.conditions;
+    }
+
+    //Removes the brackets from the conditions
+    parseConditions(conditions: Condition): string[] {
+        return conditions.replace(/[{}]/g, '').split('&&').map(cond => cond.trim());
+    }
+
+    parseStatement(statement: Statement): [string, (value: number) => number] {
+        if (statement.substring(0, 2) == "//") {
+            throw new Error("Could not parse line");
+        }
+        const match = statement.match(/(\w+)\s*=\s*(\w+)\s*([\+\-\*\/])\s*(\d+)/);
+        if (match) {
+            const variable = match[1];
+            const operand = parseInt(match[4]);
+            const operation = match[3];
+
+
+            switch (operation) {
+                case '+':
+                    return [variable, (value: number) => value + operand];
+                case '-':
+                    return [variable, (value: number) => value - operand];
+                case '*':
+                    return [variable, (value: number) => value * operand];
+                case '/':
+                    return [variable, (value: number) => value / operand];
+                default:
+                    throw new Error(`Unsupported operation: ${operation}`);
+            }
+        } else {
+            const simpleMatch = statement.match(/(\w+)\s*=\s*(\d+)/);
+            if (simpleMatch) {
+                const variable = simpleMatch[1];
+                const newValue = parseInt(simpleMatch[2]);
+                return [variable, () => newValue];
+            } else {
+                throw new Error(`Unable to parse statement: ${statement}`);
+            }
+        }
+    }
+
+    //Adds the new statement to the condition
+    updateConditionWithStatement(condition: string, variable: string, operation: (value: number) => number): string {
+        const regex = new RegExp(`(\\w+)\\s*([<>=]+)\\s*(\\d+)`);
+        const match = condition.match(regex);
+
+        if (match && match[1] === variable) {
+            const currentValue = parseInt(match[3]);
+            const newValue = operation(currentValue);
+            return `${variable} ${match[2]} ${newValue}`;
+        } else {
+            return condition;
+        }
+    }
+
+    //Updates the condition based on each line
+    run(): string {
+        let result = '';
+        result += `Initial Condition: ${this.conditions.replace(/&&/g, '^')}\n`;
+
+        for (let statement of this.statements) {
+            const updatedConditions = this.updateConditions(statement);
+            result += `${statement}\n${updatedConditions.replace(/&&/g, '^')}\n`;
+        }
+
+        return result;
+    }
+}
 
 export default function ForwardReasoningParser(initial: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        try {
+            const lines = initial.split('\n').map(line => line.trim()).filter(line => line.length > 0);
 
-
-
-
-    return new Promise<string>((resolve, reject) => {
-        var conditions = [];
-        var lines = initial.split(/\r?\n/);
-        var precondition = initial.split(/{([^}]*)}/g).filter(Boolean)[0];
-        precondition = precondition.replace(/&&/g, '^');
-        conditions.push("{" + precondition + "}\n");
-        var curr_condition = precondition;
-        lines.shift();
-
-        //Gets the variables from the precondition
-        let vars: Set<string> = new Set<string>();
-        for (var character of precondition) {
-            if ((character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z') && !vars.has(character)) {
-                vars.add(character);
-            }
-        }
-
-        const variableMap = new Map<string, string>();
-        lines.push(precondition);
-        //TODO get this to work with the precondition
-        for (var i in lines) {
-            //Get all variables in each line
-            var line = lines[i];
-            let curr_vars: Set<string> = new Set<string>();
-
-            const variableRegex = /\b[a-zA-Z]\b/g;
-            //Gets variables from line
-            let match;
-            while ((match = variableRegex.exec(line)) !== null) {
-                vars.add(match[0]);
-                curr_vars.add(match[0]);
+            if (lines.length === 0) {
+                throw new Error('Input code is empty');
             }
 
+            var i: number = 0;
+            while (lines[i] == "//") {
+                i++;
+                continue;
+            }
+            const initialCondition = lines[i];
+            const statements = lines.slice(i + 1);
 
-            const cons = line.split('^').map(line => line.trim());
-            //Parses the line into variables and their expressions
-            
-            cons.forEach(cond => {
-                const match = cond.match(/^([a-zA-Z])\s*(.*)$/);
+            const forwardReasoning = new ForwardReasoning(initialCondition, statements);
+            const result = forwardReasoning.run();
 
-                if (match) {
-                    var variable = match[1];
-                    var expression = match[2].substring(2);
-                    if (!variableMap.has(variable)) {
-                        variableMap.set(variable, expression);
-                    } else if (expression.length == 1) {
-                        variableMap.set(variable, expression);
-                    } else {
-                        //TODO variable changes but not to a constant
-                        console.log(variable.length);
-                    }
-
-                }
-
-            });
-
-
-            curr_condition = "";
-            let addAnd: boolean = false;
-            //Generates the condition by iterating over the map
-            variableMap.forEach((value: string, key: string) => {
-                if (addAnd) {
-                    curr_condition += "^";
-                } else {
-                    addAnd = true;
-                }
-                curr_condition +=  " " + key + " = " + value + " ";
-            });
-
-
-
-            //Add the new lines to the condition
-            conditions.push(line + "\n");
-            conditions.push("{" + curr_condition + "}\n");
+            resolve(result);
+        } catch (error) {
+            if (error instanceof Error) {
+                reject(error.message);
+            } else {
+                reject('An unknown error occurred');
+            }
         }
-
-
-        var reasoning = conditions.join("");
-        resolve(reasoning);
     });
 }
+
