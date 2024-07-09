@@ -29,9 +29,7 @@ class ForwardReasoning {
     }
 
     parseStatement(statement: Statement): [string, (value: number) => number] {
-        if (statement.substring(0, 2) == "//") {
-            throw new Error("Could not parse line");
-        }
+
         const match = statement.match(/(\w+)\s*=\s*(\w+)\s*([\+\-\*\/])\s*(\d+)/);
         if (match) {
             const variable = match[1];
@@ -83,6 +81,9 @@ class ForwardReasoning {
         result += `Initial Condition: ${this.conditions.replace(/&&/g, '^')}\n`;
 
         for (let statement of this.statements) {
+            if (statement.substring(0,2)=="//"){
+                continue;
+            }
             const updatedConditions = this.updateConditions(statement);
             result += `${statement}\n${updatedConditions.replace(/&&/g, '^')}\n`;
         }
@@ -101,6 +102,7 @@ export default function ForwardReasoningParser(initial: string): Promise<string>
             }
 
             var i: number = 0;
+            //Get first non commented line
             while (lines[i] == "//") {
                 i++;
                 continue;
