@@ -4,6 +4,7 @@ import { verifyDafny, runDafny } from "./runDafny";
 import { writeFileSync } from "fs";
 import {exec} from "child_process";
 import { Console } from "console";
+import { generateImage } from "./generateCFG";
 var cors = require("cors");
 var bodyParser = require("body-parser");
 
@@ -46,6 +47,12 @@ app.post("/hoare", (request, response) => {
   });
 });
 
+app.post("/CFGgen", (req, res) => {
+  const endCode: string = req.body.toString();
+  generateImage(endCode).then((result) => {
+    res.send(result);
+  });
+});
 
 // app.get("/", (req, res) => {
 //   //res.send("Hello World!");
