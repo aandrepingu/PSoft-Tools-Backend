@@ -81,7 +81,7 @@ class ForwardReasoning {
         result += `Initial Condition: ${this.conditions.replace(/&&/g, '^')}\n`;
 
         for (let statement of this.statements) {
-            if (statement.substring(0,2)=="//"){
+            if (statement.substring(0, 2) == "//") {
                 continue;
             }
             const updatedConditions = this.updateConditions(statement);
