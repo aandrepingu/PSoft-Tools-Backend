@@ -47,12 +47,14 @@ app.post("/hoare", (request, response) => {
   });
 });
 
-app.post("/CFGgen", (req, res) => {
+app.get('/fetchImage/:file(*)', (req, res) => {
   const endCode: string = req.body.toString();
-  generateImage(endCode).then((result) => {
-    res.send(result);
-  });
-});
+  generateImage(endCode);
+  let file = req.params.file; //should be CFG.jpeg
+  let fileLocation = path.join('./CFG/', file);
+  
+  res.sendFile(`${fileLocation}`)
+})
 
 // app.get("/", (req, res) => {
 //   //res.send("Hello World!");
