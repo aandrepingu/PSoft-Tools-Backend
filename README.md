@@ -11,24 +11,13 @@ If installing on a server you need to aquire the docker for metrinome: using eit
 Ensure you run "make build" for docker to reduce possible errors
 
 
-Then you need to modify the docker to run 
-```
-python3 main.py
-convert tempfile.c
-export graph tempfile_.main.dot
-quit
-exit
-```
+Then you need to modify the docker to run properly.
 
-At the end of the added docker file for metrinome add:
+At the end of the added docker file in metrinome/src/docker add:
 
 ```
 
-ENTRYPOINT ["python3", "app/code/main.py"]
-ENTRYPOINT ["convert" ,"tempfile.c"]
-ENTRYPOINT ["export", "graph", "tempfile_.main.dot"]
-ENTRYPOINT ["quit"]
-ENTRYPOINT ["exit"]
+RUN /bin/bash ./script.sh
 
 ```
 Currently only accepting .c files in the form of

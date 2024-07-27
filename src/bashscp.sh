@@ -7,9 +7,7 @@ fi
 cd CFG/metrinome/src
 make run
 #THINGS IN COMMENTS WILL BE RUN IN DOCKER ON RUN. MAKE SURE IF YOU ARE SETTING THIS UP ON A SERVER TO ADD THE DOCKER AND SET THIS UP!
-#python3 app/code/main.py
-#convert tempfile.c
-#export graph tempfile_.main.dot
+#python3 ./main.py
 #quit
 #exit
 cd exports
