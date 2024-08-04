@@ -52,3 +52,8 @@ you will also need to modify main.py in ./metrinome/src
 ```
 
 modify the file so that the end of the main() function looks like this
+
+On server set up, docker daemon needs to be running. Run the following command to start the docker daemon.
+```
+sudo service docker restart
+```

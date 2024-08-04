@@ -12,5 +12,4 @@ make run
 #exit
 cd exports
 dot -Tpng tempfile__main_dot_export.dot > CFG.jpeg
-rm tempfile__main_dot_export.dot
 cp CFG.jpeg ../../../
